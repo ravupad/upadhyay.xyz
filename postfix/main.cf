@@ -1,17 +1,16 @@
-myhostname = upadhyay.xyz
+myhostname = REPLACE_DOMAIN
 myorigin = /etc/mailname
 mydestination = 
 relayhost = 
 relay_domains = 
 queue_directory = /var/spool/postfix
 
-virtual_mailbox_domains = upadhyay.xyz
-virtual_mailbox_base = /home/virtualmailboxes
+virtual_mailbox_domains = REPLACE_DOMAIN
+virtual_mailbox_base = REPLACE_BASE
 virtual_mailbox_maps = hash:/etc/postfix/vmailbox
 virtual_minimum_uid = 500
-virtual_uid_maps = static:2000
-virtual_gid_maps = static:2000
-virtual_alias_maps = hash:/etc/postfix/virtual
+virtual_uid_maps = static:REPLACE_UID
+virtual_gid_maps = static:REPLACE_GID
 
 mailbox_size_limit = 0
 recipient_delimiter = +
@@ -20,13 +19,19 @@ inet_interfaces = all
 alias_maps =
 alias_database =
 
+smtp_tls_cert_file = REPLACE_CERT
+smtp_tls_key_file = REPLACE_KEY
 smtp_use_tls = yes
 smtp_tls_session_cache_database = btree:${data_directory}/smtp_scache
-smtpd_tls_cert_file = /etc/letsencrypt/live/upadhyay.xyz/cert.pem
-smtpd_tls_key_file = /etc/letsencrypt/live/upadhyay.xyz/privkey.pem
+smtp_tls_protocols = !SSLv2, !SSLv3, !TLSv1.1
+
+smtpd_tls_cert_file = REPLACE_CERT
+smtpd_tls_key_file = REPLACE_KEY
+smtpd_use_tls = yes
+smtpd_tls_security_level = may
+smtpd_tls_protocols = !SSLv2, !SSLv3, !TLSv1.1
 smtpd_tls_session_cache_database = btree:${data_directory}/smtpd_scache
-smtpd_tls_security_level=encrypt
-smtpd_tls_protocols = !SSLv2, !SSLv3
+smtpd_sender_login_maps = hash:/etc/postfix/senders
 
 smtpd_sasl_type = dovecot
 smtpd_sasl_path = private/auth
@@ -36,4 +41,6 @@ smtpd_relay_restrictions =
     permit_sasl_authenticated,
     reject_unauth_destination
 smtpd_sender_restrictions = 
-    reject_unknown_sender_domain
+    reject_unknown_sender_domain,
+    reject_sender_login_mismatch,
+    permit_sasl_authenticated
