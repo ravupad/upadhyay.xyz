@@ -6,11 +6,11 @@ relay_domains =
 queue_directory = /var/spool/postfix
 
 virtual_mailbox_domains = REPLACE_DOMAIN
-virtual_mailbox_base = REPLACE_BASE
+virtual_mailbox_base = /home/virtualmailboxes
 virtual_mailbox_maps = hash:/etc/postfix/vmailbox
 virtual_minimum_uid = 500
-virtual_uid_maps = static:REPLACE_UID
-virtual_gid_maps = static:REPLACE_GID
+virtual_uid_maps = static:2000
+virtual_gid_maps = static:2000
 
 mailbox_size_limit = 0
 recipient_delimiter = +
@@ -19,14 +19,14 @@ inet_interfaces = all
 alias_maps =
 alias_database =
 
-smtp_tls_cert_file = REPLACE_CERT
-smtp_tls_key_file = REPLACE_KEY
+smtp_tls_cert_file = /certs/fullchain.pem
+smtp_tls_key_file = /certs/privkey.pem
 smtp_use_tls = yes
 smtp_tls_session_cache_database = btree:${data_directory}/smtp_scache
 smtp_tls_protocols = !SSLv2, !SSLv3, !TLSv1.1
 
-smtpd_tls_cert_file = REPLACE_CERT
-smtpd_tls_key_file = REPLACE_KEY
+smtpd_tls_cert_file = /certs/fullchain.pem
+smtpd_tls_key_file = /certs/privkey.pem
 smtpd_use_tls = yes
 smtpd_tls_security_level = may
 smtpd_tls_protocols = !SSLv2, !SSLv3, !TLSv1.1
@@ -37,10 +37,24 @@ smtpd_sasl_type = dovecot
 smtpd_sasl_path = private/auth
 smtpd_sasl_auth_enable = yes
 
+policyd-spf_time_limit = 3600
+
 smtpd_relay_restrictions = 
     permit_sasl_authenticated,
     reject_unauth_destination
+    
 smtpd_sender_restrictions = 
     reject_unknown_sender_domain,
     reject_sender_login_mismatch,
     permit_sasl_authenticated
+
+smtpd_recipient_restrictions =
+   permit_mynetworks,
+   permit_sasl_authenticated,
+   reject_unauth_destination,
+   check_policy_service unix:private/policyd-spf
+
+milter_default_action = accept
+milter_protocol = 6
+smtpd_milters = local:opendkim/opendkim.sock
+non_smtpd_milters = $smtpd_milters

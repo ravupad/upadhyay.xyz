@@ -1,0 +1,1 @@
+default._domainkey.REPLACE_DOMAIN     REPLACE_DOMAIN:default:/etc/opendkim/keys/REPLACE_DOMAIN/default.private
